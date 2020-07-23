@@ -5,7 +5,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-    "github.com/spf13/viper"
+	"github.com/spf13/viper"
 
 	v1 "github.com/jaegertracing/jaeger-operator/pkg/apis/jaegertracing/v1"
 	"github.com/jaegertracing/jaeger-operator/pkg/util"
@@ -67,10 +67,10 @@ func GetTLSSecretNameForQueryService(jaeger *v1.Jaeger) string {
 // GetPortForQueryService returns the query service name for this Jaeger instance
 func GetPortForQueryService(jaeger *v1.Jaeger) int {
 	if jaeger.Spec.Ingress.Security == v1.IngressSecurityOAuthProxy {
-	    if viper.GetString("platform") == v1.FlagPlatformOpenShift {
-		    return 443
-        }
-        return 80
+		if viper.GetString("platform") == v1.FlagPlatformOpenShift {
+			return 443
+		}
+		return 80
 	}
 	return 16686
 }
@@ -84,9 +84,9 @@ func getPortNameForQueryService(jaeger *v1.Jaeger) string {
 
 func getTargetPortForQueryService(jaeger *v1.Jaeger) int {
 	if jaeger.Spec.Ingress.Security == v1.IngressSecurityOAuthProxy {
-	    if viper.GetString("platform") == v1.FlagPlatformOpenShift {
-	        return 8443
-	    }
+		if viper.GetString("platform") == v1.FlagPlatformOpenShift {
+			return 8443
+		}
 		return 9091
 	}
 	return 16686

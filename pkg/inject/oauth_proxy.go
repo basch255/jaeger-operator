@@ -21,56 +21,56 @@ const defaultProxySecret = "ncNDoqLGrayxXzxTn5ANbOXZp3qXd0LA"
 // OAuthProxy injects an appropriate proxy into the given deployment
 func OAuthProxy(jaeger *v1.Jaeger, dep *appsv1.Deployment) *appsv1.Deployment {
 	if jaeger.Spec.Ingress.Security == v1.IngressSecurityOAuthProxy {
-	    dep.Spec.Template.Spec.ServiceAccountName = account.OAuthProxyAccountNameFor(jaeger)
+		dep.Spec.Template.Spec.ServiceAccountName = account.OAuthProxyAccountNameFor(jaeger)
 
-	    if viper.GetString("platform") == v1.FlagPlatformOpenShift {
-            dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, getOpenShiftOAuthProxyContainer(jaeger))
-            dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes, corev1.Volume{
-                Name: service.GetTLSSecretNameForQueryService(jaeger),
-                VolumeSource: corev1.VolumeSource{
-                    Secret: &corev1.SecretVolumeSource{
-                        SecretName: service.GetTLSSecretNameForQueryService(jaeger),
-                    },
-                },
-            })
-	    } else {
-            dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, getOAuthProxyContainer(jaeger))
-	    }
+		if viper.GetString("platform") == v1.FlagPlatformOpenShift {
+			dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, getOpenShiftOAuthProxyContainer(jaeger))
+			dep.Spec.Template.Spec.Volumes = append(dep.Spec.Template.Spec.Volumes, corev1.Volume{
+				Name: service.GetTLSSecretNameForQueryService(jaeger),
+				VolumeSource: corev1.VolumeSource{
+					Secret: &corev1.SecretVolumeSource{
+						SecretName: service.GetTLSSecretNameForQueryService(jaeger),
+					},
+				},
+			})
+		} else {
+			dep.Spec.Template.Spec.Containers = append(dep.Spec.Template.Spec.Containers, getOAuthProxyContainer(jaeger))
+		}
 	}
 	return dep
 }
 
 func getOAuthProxyContainer(jaeger *v1.Jaeger) corev1.Container {
-    commonSpec := util.Merge([]v1.JaegerCommonSpec{jaeger.Spec.Ingress.JaegerCommonSpec, jaeger.Spec.JaegerCommonSpec})
+	commonSpec := util.Merge([]v1.JaegerCommonSpec{jaeger.Spec.Ingress.JaegerCommonSpec, jaeger.Spec.JaegerCommonSpec})
 
-    ports := []corev1.ContainerPort{
-        {
-            ContainerPort: 9091,
-            Name:          "public",
-        },
-    }
+	ports := []corev1.ContainerPort{
+		{
+			ContainerPort: 9091,
+			Name:          "public",
+		},
+	}
 
-    // If there is nothing set for the oauth-proxy, then return the default
-    if jaeger.Spec.Query.OauthProxy == nil {
-        return corev1.Container{
-            Image:        viper.GetString("oauth-proxy-image"),
-            Name:         "oauth-proxy",
-            Ports:        ports,
-            Resources: commonSpec.Resources,
-        }
-    }
+	// If there is nothing set for the oauth-proxy, then return the default
+	if jaeger.Spec.Query.OauthProxy == nil {
+		return corev1.Container{
+			Image:     viper.GetString("oauth-proxy-image"),
+			Name:      "oauth-proxy",
+			Ports:     ports,
+			Resources: commonSpec.Resources,
+		}
+	}
 
-    args := jaeger.Spec.Query.OauthProxy.Options.ToArgs()
-    sort.Strings(args)
+	args := jaeger.Spec.Query.OauthProxy.Options.ToArgs()
+	sort.Strings(args)
 
-    return corev1.Container{
-        Image:        util.ImageName(jaeger.Spec.Query.OauthProxy.Image, "oauth-proxy-image"),
-        Name:         "oauth-proxy",
-        Args:         args,
-        Ports:        ports,
-        Resources:    commonSpec.Resources,
-        VolumeMounts: jaeger.Spec.Query.OauthProxy.VolumeMounts,
-    }
+	return corev1.Container{
+		Image:        util.ImageName(jaeger.Spec.Query.OauthProxy.Image, "oauth-proxy-image"),
+		Name:         "oauth-proxy",
+		Args:         args,
+		Ports:        ports,
+		Resources:    commonSpec.Resources,
+		VolumeMounts: jaeger.Spec.Query.OauthProxy.VolumeMounts,
+	}
 }
 
 func proxyInitArguments(jaeger *v1.Jaeger) []string {

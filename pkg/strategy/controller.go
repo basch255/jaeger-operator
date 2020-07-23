@@ -91,11 +91,11 @@ func normalize(ctx context.Context, jaeger *v1.Jaeger) {
 	}
 
 	// we set the value to None, except when we are on OpenShift *and* the user has not explicitly set to 'none'
-    if viper.GetString("platform") == v1.FlagPlatformOpenShift && jaeger.Spec.Ingress.Security != v1.IngressSecurityNoneExplicit {
+	if viper.GetString("platform") == v1.FlagPlatformOpenShift && jaeger.Spec.Ingress.Security != v1.IngressSecurityNoneExplicit {
 		jaeger.Spec.Ingress.Security = v1.IngressSecurityOAuthProxy
 	}
 	if jaeger.Spec.Ingress.Security != v1.IngressSecurityOAuthProxy {
-        jaeger.Spec.Ingress.Security = v1.IngressSecurityNoneExplicit
+		jaeger.Spec.Ingress.Security = v1.IngressSecurityNoneExplicit
 	}
 
 	// note that the order normalization matters - UI norm expects all normalized properties

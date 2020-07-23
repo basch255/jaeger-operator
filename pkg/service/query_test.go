@@ -7,7 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-    "github.com/spf13/viper"
+	"github.com/spf13/viper"
 
 	v1 "github.com/jaegertracing/jaeger-operator/pkg/apis/jaegertracing/v1"
 )
@@ -38,31 +38,31 @@ func TestQueryDottedServiceName(t *testing.T) {
 }
 
 func TestQueryServiceNameAndPortsWithOAuthProxy(t *testing.T) {
-    var platformTests = []struct {
-        platform string
-        port int
-        targetPort int
-    }{
-        {"default", 80, 9091},
-        {"openshift", 443, 8443},
-    }
-    for _, pftest := range platformTests {
-        if pftest.platform != "default" {
-            viper.Set("platform", pftest.platform)
-            defer viper.Reset()
-        }
+	var platformTests = []struct {
+		platform   string
+		port       int
+		targetPort int
+	}{
+		{"default", 80, 9091},
+		{"openshift", 443, 8443},
+	}
+	for _, pftest := range platformTests {
+		if pftest.platform != "default" {
+			viper.Set("platform", pftest.platform)
+			defer viper.Reset()
+		}
 
-        name := "TestQueryServiceNameAndPortsWithOAuthProxy"
-        selector := map[string]string{"app": "myapp", "jaeger": name, "jaeger-component": "query"}
+		name := "TestQueryServiceNameAndPortsWithOAuthProxy"
+		selector := map[string]string{"app": "myapp", "jaeger": name, "jaeger-component": "query"}
 
-        jaeger := v1.NewJaeger(types.NamespacedName{Name: name})
-        jaeger.Spec.Ingress.Security = v1.IngressSecurityOAuthProxy
-        svc := NewQueryService(jaeger, selector)
+		jaeger := v1.NewJaeger(types.NamespacedName{Name: name})
+		jaeger.Spec.Ingress.Security = v1.IngressSecurityOAuthProxy
+		svc := NewQueryService(jaeger, selector)
 
-        assert.Equal(t, "testqueryservicenameandportswithoauthproxy-query", svc.ObjectMeta.Name)
-        assert.Len(t, svc.Spec.Ports, 1)
-        assert.Equal(t, int32(pftest.port), svc.Spec.Ports[0].Port)
-        assert.Equal(t, "https-query", svc.Spec.Ports[0].Name)
-        assert.Equal(t, intstr.FromInt(pftest.targetPort), svc.Spec.Ports[0].TargetPort)
-    }
+		assert.Equal(t, "testqueryservicenameandportswithoauthproxy-query", svc.ObjectMeta.Name)
+		assert.Len(t, svc.Spec.Ports, 1)
+		assert.Equal(t, int32(pftest.port), svc.Spec.Ports[0].Port)
+		assert.Equal(t, "https-query", svc.Spec.Ports[0].Name)
+		assert.Equal(t, intstr.FromInt(pftest.targetPort), svc.Spec.Ports[0].TargetPort)
+	}
 }
