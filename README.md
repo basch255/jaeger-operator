@@ -59,6 +59,10 @@ curl https://raw.githubusercontent.com/jaegertracing/jaeger-operator/master/depl
 
 It is recommended to deploy the operator instead of generating a static manifest.
 
+## secure UI component with an oauth-proxy sidecar
+
+ 
+
 ## Contributing and Developing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md).
