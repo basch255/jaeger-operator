@@ -1,4 +1,4 @@
-name: "CI Workflow"
+name: "make check"
 on: [push]
 
 jobs:
@@ -17,10 +17,10 @@ jobs:
         run: ./.ci/script.sh
 
       - name: "make check"
-          run: ./.ci/format.sh
+        run: ./.ci/format.sh
 
       - name: "show diff"
-          run: git diff
+        run: git diff
 
       - name: "upload test coverage report"
         env:
