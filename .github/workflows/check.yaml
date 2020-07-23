@@ -17,7 +17,7 @@ jobs:
         run: ./.ci/script.sh
 
       - name: "make check"
-        run: ./.ci/format.sh
+        run: make install-tools && make check
 
       - name: "show diff"
         run: git diff
